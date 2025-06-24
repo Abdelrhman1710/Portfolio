@@ -1,0 +1,554 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Abdelrhman Mahmoud Ibrahim | Data Analyst</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f1f5f9;
+      color: #1e293b;
+      line-height: 1.8;
+    }
+
+    nav {
+      background: #0f172a;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      padding: 15px 20px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      padding: 0;
+    }
+
+    nav a {
+      color: #e2e8f0;
+      font-size: 1.1em;
+      font-weight: 500;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    nav a:hover {
+      color: #3b82f6;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+      color: #fff;
+      padding: 100px 20px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('https://www.transparenttextures.com/patterns/stardust.png');
+      opacity: 0.15;
+      z-index: 1;
+    }
+
+    header > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    header h1 {
+      font-size: 3.5em;
+      font-weight: 900;
+      margin-bottom: 15px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    header p {
+      font-size: 1.3em;
+      font-weight: 300;
+      margin: 10px 0;
+    }
+
+    .contact-info i {
+      margin-right: 10px;
+      color: #bfdbfe;
+    }
+
+    header a {
+      color: #bfdbfe;
+      transition: color 0.3s ease;
+    }
+
+    header a:hover {
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .social-buttons {
+      margin-top: 20px;
+    }
+
+    .social-buttons a {
+      display: inline-block;
+      background: #fff;
+      color: #1e40af;
+      padding: 10px 20px;
+      margin: 0 10px;
+      border-radius: 50px;
+      font-weight: 600;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .social-buttons a:hover {
+      background: #3b82f6;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    section {
+      max-width: 1200px;
+      margin: 60px auto;
+      padding: 0 20px;
+    }
+
+    h2 {
+      color: #1e40af;
+      font-size: 2.5em;
+      font-weight: 700;
+      margin-bottom: 30px;
+      position: relative;
+      padding-bottom: 15px;
+    }
+
+    h2::after {
+      content: '';
+      position: absolute;
+      width: 100px;
+      height: 5px;
+      background: linear-gradient(to right, #1e40af, #3b82f6);
+      bottom: 0;
+      left: 0;
+      border-radius: 3px;
+    }
+
+    ul {
+      padding-left: 30px;
+      margin-bottom: 30px;
+    }
+
+    li {
+      margin-bottom: 15px;
+      font-size: 1.2em;
+      position: relative;
+      padding-left: 20px;
+    }
+
+    li::before {
+      content: '\f00c';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      color: #3b82f6;
+      position: absolute;
+      left: -20px;
+      top: 5px;
+      font-size: 1em;
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 30px;
+    }
+
+    .project {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .project::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom, rgba(0, 0, 255, 0.1), rgba(59, 130, 246, 0.1));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .project:hover::before {
+      opacity: 1;
+    }
+
+    .project:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .project h3 {
+      color: #1f2937;
+      font-size: 1.8em;
+      font-weight: 600;
+      margin-bottom: 15px;
+    }
+
+    .project p {
+      color: #4b5563;
+      font-size: 1.1em;
+    }
+
+    footer {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 50px 20px;
+      text-align: center;
+      margin-top: 80px;
+      position: relative;
+    }
+
+    footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 8px;
+      background: linear-gradient(to right, #1e40af, #3b82f6);
+    }
+
+    footer p {
+      font-size: 1.2em;
+      font-weight: 300;
+    }
+
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-in {
+      opacity: 0;
+      animation: fadeInUp 0.5s ease-out forwards;
+      animation-fill-mode: forwards;
+    }
+
+    @media (max-width: 1024px) {
+      .projects-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      }
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 80px 15px;
+        min-height: 80vh;
+      }
+
+      header h1 {
+        font-size: 2.8em;
+      }
+
+      header p {
+        font-size: 1.1em;
+      }
+
+      section {
+        margin: 40px auto;
+        padding: 0 15px;
+      }
+
+      h2 {
+        font-size: 2em;
+      }
+
+      .project h3 {
+        font-size: 1.6em;
+      }
+
+      .projects-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .social-buttons a {
+        margin: 5px;
+        padding: 8px 15px;
+        font-size: 0.9em;
+      }
+
+      .avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      header h1 {
+        font-size: 2em;
+      }
+
+      header p {
+        font-size: 0.9em;
+      }
+
+      h2 {
+        font-size: 1.8em;
+      }
+
+      li {
+        font-size: 1.1em;
+      }
+
+      .project h3 {
+        font-size: 1.4em;
+      }
+
+      .avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 20px;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .avatar {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <ul>
+      <li><a href="#about">About</a></li>
+      <li><a href="#education">Education</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#skills">Skills</a></li>
+    </ul>
+  </nav>
+
+  <header>
+    <img src="profile.jpg" alt="Abdelrhman Mahmoud Ibrahim" class="avatar">
+    <h1 class="fade-in">Abdelrhman Mahmoud Ibrahim</h1>
+    <p class="fade-in">Data Analyst | SQL, Python, Power BI</p>
+    <p class="contact-info fade-in"><i class="fas fa-envelope"></i><a href="mailto:abdelrhman442012@gmail.com">abdelrhman442012@gmail.com</a> | <i class="fas fa-phone"></i>+20 01152588518</p>
+    <p class="contact-info fade-in"><i class="fas fa-map-marker-alt"></i>Ain Shams, Cairo, Egypt</p>
+    <div class="social-buttons fade-in">
+      <a href="https://github.com/Abdelrhman1710" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+      <a href="https://www.linkedin.com/in/abdelrhman-mahmoud74?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app">LinkedIn</a>
+      <a href="https://khamsat.com/data/data-science-ml/3409505-%D8%AA%D8%AD%D9%84%D9%8A%D9%84-%D8%A8%D9%8A%D8%A7%D9%86%D8%A7%D8%AA-%D8%B4%D8%A7%D9%85%D9%84-%D8%A8%D8%A7%D8%B3%D8%AA%D8%AE%D8%AF%D8%A7%D9%85-python-%D9%88power-bi-%D9%88-%D8%AA%D9%82%D8%A7%D8%B1%D9%8A%D8%B1-%D9%85%D8%AE%D8%B5%D8%B5%D8%A9">Khamsat</a>
+      <a href="https://www.facebook.com/share/1AnJFfsH9Y/">CogniAnalytica</a>
+    </div>
+  </header>
+
+  <section id="about" class="fade-in">
+    <h2>About Me</h2>
+    <p>Data Analyst specializing in data cleaning, analysis, and visualization using tools like Python, Power BI, and SQL. Skilled in developing clear reports and interactive dashboards to support data-driven decision-making. I have a foundational understanding of AI methods and machine learning applications.</p>
+    <p>I’ve worked on a variety of data analysis projects and participated in professional training focused on database management and data analytics. I’m passionate about education and knowledge-sharing, and I serve as a Certified Instructor in the Digital Egypt Cubs Initiative (DECI), teaching programming and digital skills to middle-school students. This role reflects my ability to simplify technical concepts and communicate them effectively.</p>
+    <p>In addition, I am the founder of CogniAnalytica, a data analysis and machine learning team focused on collaboration, learning, and building real-world projects that solve practical problems.</p>
+    <p>I continuously seek to enhance my skills and stay current with the latest technologies in data analytics and artificial intelligence, aiming to make a positive impact through both data analysis and mentoring others.</p>
+  </section>
+
+  <section id="education" class="fade-in">
+    <h2>Education</h2>
+    <ul>
+      <li>Faculty of Science, Ain Shams University – Bachelor's Degree in Computer Science and Statistics (Aug 2020 – Jan 2025)</li>
+    </ul>
+  </section>
+
+  <section id="experience" class="fade-in">
+    <h2>Professional Experience</h2>
+    <ul>
+      <li><strong>Certified Instructor</strong> – Digital Egypt Cubs Initiative (DECI), Egypt (2024 – present)
+        <ul>
+          <li>Teaching programming and digital skills to middle-school students, focusing on simplifying technical concepts.</li>
+          <li>Developing and delivering engaging curricula to foster interest in data analytics and technology.</li>
+          <li>Promoting digital literacy and problem-solving skills through hands-on activities and projects.</li>
+        </ul>
+      </li>
+      <li><strong>Data Analyst</strong> – Exclusive Cards, Cairo (Mar 2025 – present)
+        <ul>
+          <li>Using SQL to extract and manipulate customer and sales data from databases.</li>
+          <li>Creating reports and dashboards using Power BI.</li>
+          <li>Providing insights to support business decisions.</li>
+        </ul>
+      </li>
+    </ul>
+
+    <h2>Internships & Courses</h2>
+    <ul>
+      <li><strong>Data Analyst Intern (Online)</strong> – CognoRise InfoTech (Oct 2024 – Nov 2024)
+        <ul>
+          <li>Conducted in-depth analysis of datasets, including Cereal Dataset Analysis, Chicago Crimes 2005 to 2017, and Indian Unemployment Data during COVID-19.</li>
+          <li>Cleaned and processed data for insights, visualized results using Python and Power BI.</li>
+        </ul>
+      </li>
+      <li><strong>Digital Egypt Pioneers Initiative (DEPI)</strong> (May 2024 – Sep 2024)
+        <ul>
+          <li>Databases, SQL, PostgreSQL, Power BI.</li>
+        </ul>
+      </li>
+      <li><strong>Internship – The Egyptian Compulsory Motor Insurance Pool</strong> (Jul 2024 – Aug 2024)
+        <ul>
+          <li>IT Training on Network Security and Database.</li>
+        </ul>
+      </li>
+      <li><strong>Certified Data Science Professional (Epsilon AI)</strong> (Oct 2022 – Nov 2023)
+        <ul>
+          <li>Python Programming, Databases (MySQL), Data Analysis with NumPy and Pandas, Data Visualization with Plotly/Dash, Machine Learning, Software Engineering & Model Deployment.</li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+
+  <section id="projects" class="fade-in">
+    <h2>Projects</h2>
+    <div class="projects-grid">
+      <div class="project">
+        <h3>Traffic Incident Classification</h3>
+        <p>Analyzed a 2-year dataset with 1.16M records, categorized into severity levels. Predicted road passability using machine learning models.</p>
+      </div>
+      <div class="project">
+        <h3>Advertising Effectiveness</h3>
+        <p>The project analyzes the effectiveness of social media advertising, using machine learning models to predict customer engagement with ads.</p>
+      </div>
+      <div class="project">
+        <h3>Complaints Analysis</h3>
+        <p>Analyzed complaints filed against companies globally to understand the types of complaints and identify key issues.</p>
+      </div>
+      <div class="project">
+        <h3>Online Retail Analysis</h3>
+        <p>Performed advanced SQL queries to extract actionable insights from an online retail dataset.</p>
+      </div>
+      <div class="project">
+        <h3>Hotel Database</h3>
+        <p>Created a structured repository to store and manage hotel-related information, including bookings, room details, and more.</p>
+      </div>
+      <div class="project">
+        <h3>COVID-19 Unemployment Analysis</h3>
+        <p>Identified seasonal unemployment trends and visualized results using Python.</p>
+      </div>
+      <div class="project">
+        <h3>Sales Analysis</h3>
+        <p>Analyzed sales data and performance with Power BI to provide business insights.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="skills" class="fade-in">
+    <h2>Certifications</h2>
+    <ul>
+      <li>Certified Data Science Professional – Epsilon AI (2024)</li>
+      <li>Data Analyst Internship – CognoRise InfoTech</li>
+      <li>Training Certificate in AI – Zewail University (2023)</li>
+      <li>IT Training on Network Security and Database – The Egyptian Compulsory Motor Insurance Pool</li>
+    </ul>
+
+    <h2>Soft and Technical Skills</h2>
+    <ul>
+      <li><strong>Database Management</strong></li>
+      <li><strong>SQL (Structured Query Language)</strong></li>
+      <li><strong>Python (Data Analysis, Pandas, NumPy)</strong></li>
+      <li><strong>Streamlit (Interactive Dashboards)</strong></li>
+      <li><strong>Power BI</strong></li>
+      <li><strong>Programming Languages: C++, Python</strong></li>
+      <li><strong>Data Visualization (Matplotlib, Seaborn, Plotly)</strong></li>
+      <li><strong>Machine Learning (scikit-learn)</strong></li>
+      <li><strong>Analytical SQL</strong></li>
+      <li><strong>Hard Work, Adaptability, Teamwork, Patience</strong></li>
+    </ul>
+  </section>
+
+  <footer class="fade-in">
+    <p>© 2025 Abdelrhman Mahmoud Ibrahim | All rights reserved</p>
+  </footer>
+
+</body>
+</html>
